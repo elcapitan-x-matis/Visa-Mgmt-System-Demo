@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permit Records | Work VISA Management System</title>
+    
+    <!-- CDNs -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.0.0/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+<body>
+
+    <div id="nav-placeholder"></div>
+
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">Records</li>
+                    <li class="breadcrumb-item active">Permits</li>
+                </ol>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2>All Permit Records</h2>
+                    <a href="permit-select-client.html" class="btn btn-sm btn-primary">
+                        <i class="bi-plus-circle"></i>&nbsp;Add New Permit
+                    </a>
+                </div>
+                <hr>
+
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover" id="permitTable" width="100%" cellspacing="0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Permit No.</th>
+                                <th>Client Name</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Expiry Date</th>
+                            </tr>
+                        </thead>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <th>Permit No.</th>
+                                <th>Client Name</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Expiry Date</th>
+                            </tr>
+                        </tfoot>
+                        <tbody id="permitTableBody">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.0.0/js/dataTables.bootstrap5.min.js"></script>
+    
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/data-loader.js"></script>
+    <script src="assets/js/auth.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            await includeHTML("nav-placeholder", "partials/nav.html");
+            await includeHTML("footer-placeholder", "partials/footer.html");
+
+            const session = checkAuth();
+            if (!session) return;
+
+            const data = await loadAppData();
+            if (!data) return;
+
+            const tbody = document.getElementById('permitTableBody');
+            let html = '';
+
+            data.permits.forEach(permit => {
+                const client = data.clients.find(c => c.clientID === permit.clientID);
+                const type = data.permit_types.find(t => t.typeCode === permit.permitType);
+                
+                const clientName = client ? `${client.lastname}, ${client.firstname}` : '<span class="text-muted">Client Missing</span>';
+                const clientLink = client ? `<a href="client-view.html?id=${client.clientID}"><i class="bi-person"></i>&nbsp;${clientName}</a>` : clientName;
+                const typeName = type ? type.name : 'Unknown';
+
+                html += `
+                <tr>
+                    <td><a href="permit-view.html?no=${permit.permitNo}"><strong>#${permit.permitNo}</strong></a></td>
+                    <td>${clientLink}</td>
+                    <td>${typeName}</td>
+                    <td>${getStatusBadge(permit.status)}</td>
+                    <td>${dateToText(permit.dateExpiry)}</td>
+                </tr>`;
+            });
+
+            tbody.innerHTML = html;
+
+            // Initialize DataTable
+            $('#permitTable').DataTable({
+                "order": [[0, "desc"]],
+                "pageLength": 10,
+                "language": {
+                    "search": "Search permits:",
+                    "lengthMenu": "Show _MENU_ entries"
+                }
+            });
+        });
+    </script>
+</body>
+</html>

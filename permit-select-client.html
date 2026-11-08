@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Client for Permit | Work VISA Management System</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.0.0/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+<body>
+
+    <div id="nav-placeholder"></div>
+
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">Records</li>
+                    <li class="breadcrumb-item"><a href="permits.html">Permits</a></li>
+                    <li class="breadcrumb-item active">Select Client</li>
+                </ol>
+                <h3>Select a Client for New Permit</h3>
+                <p class="text-muted">Please select the client you wish to issue a new Work Permit to.</p>
+                <hr>
+
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover" id="selectClientTable" width="100%" cellspacing="0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Client ID</th>
+                                <th>Name</th>
+                                <th>Country</th>
+                                <th>Occupation</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <th>Client ID</th>
+                                <th>Name</th>
+                                <th>Country</th>
+                                <th>Occupation</th>
+                                <th>Action</th>
+                            </tr>
+                        </tfoot>
+                        <tbody id="selectClientBody">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net@2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.0.0/js/dataTables.bootstrap5.min.js"></script>
+    
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/data-loader.js"></script>
+    <script src="assets/js/auth.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            await includeHTML("nav-placeholder", "partials/nav.html");
+            await includeHTML("footer-placeholder", "partials/footer.html");
+
+            const session = checkAuth();
+            if (!session) return;
+
+            const data = await loadAppData();
+            if (!data) return;
+
+            const tbody = document.getElementById('selectClientBody');
+            let html = '';
+
+            // Filter clients who don't have a permit yet (optional, but logical)
+            // For this demo, we'll list all clients so the user can select anyone.
+            data.clients.forEach(client => {
+                html += `
+                <tr>
+                    <td><strong>#${client.clientID}</strong></td>
+                    <td>${client.lastname}, ${client.firstname}</td>
+                    <td>${client.country}</td>
+                    <td>${client.occupation || 'N/A'}</td>
+                    <td>
+                        <a href="permit-add.html?clientId=${client.clientID}" class="btn btn-sm btn-primary">
+                            Select&nbsp;<i class="bi-arrow-right-circle"></i>
+                        </a>
+                    </td>
+                </tr>`;
+            });
+
+            tbody.innerHTML = html;
+
+            // Initialize DataTable
+            $('#selectClientTable').DataTable({
+                "order": [[0, "desc"]],
+                "pageLength": 10,
+                "language": {
+                    "search": "Find client:",
+                    "lengthMenu": "Show _MENU_ entries"
+                }
+            });
+        });
+    </script>
+</body>
+</html>

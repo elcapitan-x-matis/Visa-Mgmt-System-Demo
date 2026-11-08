@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Permit | Work VISA Management System</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+<body>
+
+    <div id="nav-placeholder"></div>
+
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">Records</li>
+                    <li class="breadcrumb-item"><a href="permits.html">Permits</a></li>
+                    <li class="breadcrumb-item active">Update Record</li>
+                </ol>
+                <h3>Update Permit Record</h3>
+                <hr>
+
+                <div class="col-lg-8 col-md-10 col-sm-12">
+                    <form id="permitForm" onsubmit="handleUpdatePermit(event)">
+                        <input type="hidden" id="originalPermitNo" value="">
+                        
+                        <div class="form-group text-right mb-3">
+                            <i class="bi-asterisk required"></i>&nbsp;Required fields
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="permitNo">Permit Number&nbsp;<i class="bi-asterisk required"></i></label>
+                            <input type="number" min="0" class="form-control form-control-sm" id="permitNo" required>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="status">Status&nbsp;<i class="bi-asterisk required"></i></label>
+                                <select id="status" class="form-select form-select-sm" required>
+                                    <option value="">-- Select a status --</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Expired">Expired</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                    <option value="Under Renewal">Under Renewal</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="type">Type of Permit&nbsp;<i class="bi-asterisk required"></i></label>
+                                <select id="type" class="form-select form-select-sm" required>
+                                    <option value="">-- Select a type --</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="dateIssued">Issue Date&nbsp;<i class="bi-asterisk required"></i></label>
+                                <input type="date" class="form-control form-control-sm" id="dateIssued" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="dateExpiry">Expiry Date&nbsp;<i class="bi-asterisk required"></i></label>
+                                <input type="date" class="form-control form-control-sm" id="dateExpiry" required>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-block btn-sm btn-primary">Save Changes&nbsp;<i class="bi-save"></i></button>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="#" id="cancelBtn" class="btn btn-block btn-sm btn-outline-secondary">Cancel&nbsp;<i class="bi-x-circle"></i></a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/data-loader.js"></script>
+    <script src="assets/js/auth.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            await includeHTML("nav-placeholder", "partials/nav.html");
+            await includeHTML("footer-placeholder", "partials/footer.html");
+
+            const session = checkAuth();
+            if (!session) return;
+
+            const data = await loadAppData();
+            if (!data) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const permitNo = parseInt(urlParams.get('no'));
+
+            const permit = data.permits.find(p => p.permitNo === permitNo);
+            if (!permit) {
+                window.location.href = '404.html';
+                return;
+            }
+
+            // Populate Types Dropdown
+            const typeSelect = document.getElementById('type');
+            data.permit_types.forEach(t => {
+                typeSelect.innerHTML += `<option value="${t.typeCode}">${t.name}</option>`;
+            });
+
+            // Populate Form
+            document.getElementById('originalPermitNo').value = permit.permitNo;
+            document.getElementById('permitNo').value = permit.permitNo;
+            document.getElementById('status').value = permit.status;
+            document.getElementById('type').value = permit.permitType;
+            document.getElementById('dateIssued').value = permit.dateIssued;
+            document.getElementById('dateExpiry').value = permit.dateExpiry;
+
+            document.getElementById('cancelBtn').href = `permit-view.html?no=${permit.permitNo}`;
+        });
+
+        function handleUpdatePermit(event) {
+            event.preventDefault();
+            const data = window.APP_DATA;
+            
+            const originalNo = parseInt(document.getElementById('originalPermitNo').value);
+            const newPermitNo = parseInt(document.getElementById('permitNo').value);
+
+            // Check if changing permitNo and if new number conflicts
+            if (originalNo !== newPermitNo && data.permits.some(p => p.permitNo === newPermitNo)) {
+                alert('Error: New permit number already exists!');
+                return;
+            }
+
+            const index = data.permits.findIndex(p => p.permitNo === originalNo);
+            if (index === -1) return;
+
+            data.permits[index] = {
+                ...data.permits[index],
+                permitNo: newPermitNo,
+                permitType: document.getElementById('type').value,
+                status: document.getElementById('status').value,
+                dateIssued: document.getElementById('dateIssued').value,
+                dateExpiry: document.getElementById('dateExpiry').value,
+                updatedOn: new Date().toISOString().slice(0, 19).replace('T', ' ')
+            };
+
+            saveAppData();
+            window.location.href = `permit-view.html?no=${newPermitNo}`;
+        }
+    </script>
+</body>
+</html>
