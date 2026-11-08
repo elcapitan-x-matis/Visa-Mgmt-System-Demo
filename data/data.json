@@ -1,0 +1,49 @@
+{
+  "roles": [
+    { "ID": 1, "role": "Administrator" },
+    { "ID": 2, "role": "User Employee" }
+  ],
+  "permit_types": [
+    { "typeCode": "DEP-FAM-3YR", "name": "Dependent - Family - 3 Years" },
+    { "typeCode": "GEN-LONG-3YR", "name": "General Long Term - 3 Years" },
+    { "typeCode": "SPEC-SHORT-1YR", "name": "Specialist Short Term - 1 Year" },
+    { "typeCode": "VOC-TRAIN-6M", "name": "Vocational Training - 6 Months" }
+  ],
+  "users": [
+    { "userID": 1, "firstname": "Richmond", "lastname": "Nongkas", "username": "rnongkas", "email": "rnongkas@immigration.gov.pg", "password": "7288edd0fc3ffcbe93a0cf06e3568e28521687bc", "roleID": 1, "activation": 1 },
+    { "userID": 5, "firstname": "John", "lastname": "Doe", "username": "jdoe", "email": "jdoe@immigration.gov.pg", "password": "7288edd0fc3ffcbe93a0cf06e3568e28521687bc", "roleID": 2, "activation": 1 }
+  ],
+  "establishments": [
+    { "ID": 1, "name": "Kokopo Bay Seafoods Ltd", "address": "Section 12, Lot 5, Kokopo, ENBP", "placeOfOperation": "Kokopo City, ENBP" },
+    { "ID": 2, "name": "Rabaul Coffee Exporters", "address": "Mango Ave, Rabaul, ENBP", "placeOfOperation": "Rabaul Town, ENBP" },
+    { "ID": 3, "name": "New Guinea Hardware Supplies", "address": "Kokopo-Vunamami LLG, ENBP", "placeOfOperation": "Kokopo City, ENBP" },
+    { "ID": 4, "name": "East New Britain Builders Ltd", "address": "Takubar Industrial Area, ENBP", "placeOfOperation": "Takubar, Kokopo, ENBP" },
+    { "ID": 8, "name": "Vunapope Hospital Services", "address": "Vunapope, ENBP", "placeOfOperation": "Vunapope, Kokopo, ENBP" },
+    { "ID": 12, "name": "Gazelle International Hotel", "address": "Kokopo, ENBP", "placeOfOperation": "Kokopo City, ENBP" }
+  ],
+  "clients": [
+    { "clientID": 20001, "firstname": "Chen", "lastname": "WEI", "othername": "David", "country": "China", "occupation": "Operations Manager", "establishmentID": 1, "email": "chen.wei@email.com", "phone": "71234567" },
+    { "clientID": 20002, "firstname": "Wang", "lastname": "LI", "othername": null, "country": "China", "occupation": "Sales Manager", "establishmentID": 2, "email": null, "phone": null },
+    { "clientID": 20003, "firstname": "Lin", "lastname": "JUAN", "othername": "Maria", "country": "China", "occupation": "Accountant", "establishmentID": 3, "email": "lin.juan@email.com", "phone": "72234567" },
+    { "clientID": 20004, "firstname": "Li", "lastname": "QING", "othername": null, "country": "China", "occupation": "Civil Engineer", "establishmentID": 4, "email": null, "phone": null },
+    { "clientID": 20008, "firstname": "Reyes", "lastname": "Miguel", "othername": null, "country": "Philippines", "occupation": "Chef", "establishmentID": 8, "email": null, "phone": "74234567" },
+    { "clientID": 20012, "firstname": "Park", "lastname": "Ji-eun", "othername": null, "country": "South Korea", "occupation": "Graphic Designer", "establishmentID": 12, "email": "park.jieun@email.com", "phone": "76234567" },
+    { "clientID": 20076, "firstname": "Yang", "lastname": "LIN", "othername": "Grace", "country": "China", "occupation": "Operations Director", "establishmentID": 1, "email": "yang.lin@email.com", "phone": "71234570" }
+  ],
+  "permits": [
+    { "permitNo": 21100001, "permitType": "GEN-LONG-3YR", "status": "Expired", "dateIssued": "2021-01-20", "dateExpiry": "2024-01-20", "clientID": 20001, "updatedOn": "2021-01-20 10:00:00" },
+    { "permitNo": 21100002, "permitType": "GEN-LONG-3YR", "status": "Expired", "dateIssued": "2021-02-15", "dateExpiry": "2024-02-15", "clientID": 20002, "updatedOn": "2021-02-15 10:00:00" },
+    { "permitNo": 21100003, "permitType": "SPEC-SHORT-1YR", "status": "Expired", "dateIssued": "2021-03-10", "dateExpiry": "2022-03-10", "clientID": 20003, "updatedOn": "2021-03-10 10:00:00" },
+    { "permitNo": 21100004, "permitType": "GEN-LONG-3YR", "status": "Expired", "dateIssued": "2021-03-25", "dateExpiry": "2024-03-25", "clientID": 20004, "updatedOn": "2021-03-25 10:00:00" },
+    { "permitNo": 21100008, "permitType": "GEN-LONG-3YR", "status": "Expired", "dateIssued": "2021-06-18", "dateExpiry": "2024-06-18", "clientID": 20008, "updatedOn": "2021-06-18 10:00:00" },
+    { "permitNo": 21100012, "permitType": "GEN-LONG-3YR", "status": "Expired", "dateIssued": "2021-08-25", "dateExpiry": "2024-08-25", "clientID": 20012, "updatedOn": "2021-08-25 10:00:00" },
+    { "permitNo": 21100076, "permitType": "GEN-LONG-3YR", "status": "Active", "dateIssued": "2024-01-10", "dateExpiry": "2027-01-10", "clientID": 20076, "updatedOn": "2024-01-10 10:00:00" }
+  ],
+  "client_notes": [
+    { "ID": 32, "notes": "Client record created. All initial documentation received and verified.", "clientID": 20001, "createdOn": "2021-01-21 09:30:00" },
+    { "ID": 57, "notes": "Client has successfully renewed their permit for another 3 years.", "clientID": 20076, "createdOn": "2024-01-11 10:00:00" }
+  ],
+  "est_notes": [
+    { "ID": 15, "notes": "Initial compliance check completed. All permits appear to be in order for the current staff.", "establishmentID": 1, "createdOn": "2021-05-10 11:00:00" }
+  ]
+}
