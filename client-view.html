@@ -200,8 +200,13 @@
             window.location.reload(); // Quick refresh to show new note
         }
 
-        function deleteNote(noteId) {
-            if (!confirm('Are you sure you want to remove this note?')) return;
+        async function deleteNote(noteId) {
+            const confirmed = await confirmAction(
+                'Remove Note', 
+                'Are you sure you want to remove this note?', 
+                'Yes, remove it'
+            );
+            if (!confirmed) return;
             
             const data = window.APP_DATA;
             data.client_notes = data.client_notes.filter(n => n.ID !== noteId);

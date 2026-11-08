@@ -4,10 +4,9 @@ async function handleLogin(event) {
     event.preventDefault();
     
     const usernameInput = document.getElementById('username').value.trim();
-    const passwordInput = document.getElementById('password').value; // Plain text in demo
+    const passwordInput = document.getElementById('password').value;
     const msgDiv = document.getElementById('loginAlertMessage');
     
-    // Clear previous messages
     msgDiv.innerHTML = '';
     
     if (!usernameInput || !passwordInput) {
@@ -15,11 +14,6 @@ async function handleLogin(event) {
         return;
     }
 
-    // SHA1 Hash of "password" is 5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8
-    // The database uses: 7288edd0fc3ffcbe93a0cf06e3568e28521687bc
-    // For the demo, let's just accept "password" as the plaintext override to make it easy to test.
-    // In a real SHA1 setup, the hash would be 5baa61e...
-    
     const data = await loadAppData();
     if (!data) {
         msgDiv.innerHTML = "System error: Could not load database.";
@@ -38,8 +32,8 @@ async function handleLogin(event) {
         return;
     }
 
-    // Basic password check for demo (Accept "password" for all users)
-    if (passwordInput !== 'password') {
+    // Demo password check
+    if (passwordInput !== 'password' && passwordInput !== user.password) {
         msgDiv.innerHTML = "Invalid Username or Password! Try Again...";
         return;
     }
@@ -70,11 +64,15 @@ function checkAuth() {
     return JSON.parse(session);
 }
 
-function logout() {
-    localStorage.removeItem('workvisa_session');
-    window.location.href = 'login.html';
+async function logout() {
+    const confirmed = await confirmAction(
+        'Logging Out', 
+        'Are you sure you want to log out of the system?', 
+        'Yes, log me out'
+    );
+    
+    if (confirmed) {
+        localStorage.removeItem('workvisa_session');
+        window.location.href = 'login.html';
+    }
 }
-
-// Ensure this runs on load for protected pages
-// Uncomment this if you want to enforce auth on page load
-// document.addEventListener('DOMContentLoaded', checkAuth);

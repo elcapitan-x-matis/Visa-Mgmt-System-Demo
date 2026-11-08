@@ -235,8 +235,13 @@
             window.location.reload();
         }
 
-        function deleteEstNote(noteId) {
-            if (!confirm('Are you sure you want to remove this note?')) return;
+        async function deleteEstNote(noteId) {
+            const confirmed = await confirmAction(
+                'Remove Note', 
+                'Are you sure you want to remove this note?', 
+                'Yes, remove it'
+            );
+            if (!confirmed) return;
             
             const data = window.APP_DATA;
             data.est_notes = data.est_notes.filter(n => n.ID !== noteId);

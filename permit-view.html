@@ -50,23 +50,6 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deletePermitModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Are you sure?</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <p class="text-muted">You are about to delete this permit record. This action cannot be undone.</p>
-                    <button type="button" class="btn btn-block btn-sm btn-secondary w-100 mb-2" onclick="deletePermit()">Discard&nbsp;<i class="bi-trash"></i></button>
-                    <button type="button" class="btn btn-block btn-sm btn-outline-primary w-100" data-bs-dismiss="modal">Keep&nbsp;<i class="bi-save"></i></button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div id="footer-placeholder"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
@@ -168,7 +151,14 @@
             document.getElementById('clientInfoSection').innerHTML = clientHtml;
         });
 
-        function deletePermit() {
+        async function deletePermit() {
+            const confirmed = await confirmAction(
+                'Delete Permit', 
+                'You are about to delete this permit record. This action cannot be undone.', 
+                'Yes, delete it'
+            );
+            if (!confirmed) return;
+
             const data = window.APP_DATA;
             data.permits = data.permits.filter(p => p.permitNo !== currentPermitNo);
             saveAppData();

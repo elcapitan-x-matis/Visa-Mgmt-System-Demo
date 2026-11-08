@@ -145,7 +145,7 @@
             
             const newPermitNo = parseInt(document.getElementById('permitNo').value);
             if (data.permits.some(p => p.permitNo === newPermitNo)) {
-                alert('Error: Permit number already exists!');
+                showAlert('Error', 'Permit number already exists!', 'error');
                 return;
             }
 

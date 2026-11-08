@@ -201,14 +201,21 @@
         });
 
         // Helper functions
-        function deleteUser(userId) {
+        async function deleteUser(userId) {
+            const confirmed = await confirmAction('Delete Account', 'Deleting this account is permanent.', 'Yes, delete account');
+            if (!confirmed) return;
+
             const data = window.APP_DATA;
             data.users = data.users.filter(u => u.userID !== userId);
             saveAppData();
             window.location.reload();
         }
 
-        function toggleActivation(userId, status) {
+        async function toggleActivation(userId, status) {
+            const action = status === 1 ? 'Activate' : 'De-Activate';
+            const confirmed = await confirmAction(`${action} Account`, `Are you sure you want to ${action.toLowerCase()} this account?`, `Yes, ${action.toLowerCase()}`);
+            if (!confirmed) return;
+
             const data = window.APP_DATA;
             const user = data.users.find(u => u.userID === userId);
             if (user) {

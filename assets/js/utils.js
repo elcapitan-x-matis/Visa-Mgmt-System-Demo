@@ -43,16 +43,43 @@ function permissionsBadge(permission) {
     return `<i style="color: red;" class="bi-x-circle fs-5"></i>`;
 }
 
-// Custom Confirm Alerts (Uses SweetAlert2 if loaded, else native alert)
+// Custom Confirm Alerts (Uses SweetAlert2)
 function showAlert(title, text, icon) {
     if (typeof Swal !== 'undefined') {
-        Swal.fire({ title: title, text: text, icon: icon, confirmButtonColor: '#FB9041' });
+        Swal.fire({ 
+            title: title, 
+            text: text, 
+            icon: icon, 
+            confirmButtonColor: '#FB9041',
+            confirmButtonText: 'OK'
+        });
     } else {
         alert(`${title}: ${text}`);
     }
 }
 
-// Function to inject HTML partials (replaces PHP require)
+function confirmAction(title, text, confirmText, icon = 'warning') {
+    return new Promise((resolve) => {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonColor: '#FB9041',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: confirmText || 'Yes, proceed',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                resolve(result.isConfirmed);
+            });
+        } else {
+            resolve(confirm(`${title}\n\n${text}`));
+        }
+    });
+}
+
+// HTML Partial Loader (replaces PHP require)
 async function includeHTML(elementId, filePath) {
     const element = document.getElementById(elementId);
     if (!element) return;

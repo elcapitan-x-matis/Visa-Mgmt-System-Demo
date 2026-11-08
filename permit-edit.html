@@ -137,7 +137,7 @@
 
             // Check if changing permitNo and if new number conflicts
             if (originalNo !== newPermitNo && data.permits.some(p => p.permitNo === newPermitNo)) {
-                alert('Error: New permit number already exists!');
+                showAlert('Error', 'New permit number already exists!', 'error');
                 return;
             }
 
