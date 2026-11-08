@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update User Permissions | Work VISA Management System</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+<body>
+
+    <div id="nav-placeholder"></div>
+
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">Users</li>
+                    <li class="breadcrumb-item"><a href="users.html">Accounts</a></li>
+                    <li class="breadcrumb-item active">Access Permissions</li>
+                </ol>
+                <h3>Update User Permissions</h3>
+                <hr>
+
+                <div class="col-lg-8 col-md-10 col-sm-12">
+                    <p class="text-muted" id="userSummary">
+                        Loading user details...
+                    </p>
+                    
+                    <form id="userForm" onsubmit="handleUpdateUser(event)">
+                        <input type="hidden" id="userId" value="">
+                        
+                        <div class="form-group text-right mb-3">
+                            <i class="bi-asterisk required"></i>&nbsp;Required fields
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="role">User Role&nbsp;<i class="bi-asterisk required"></i></label>
+                            <select class="form-select form-select-sm" id="role" required>
+                                <option value="">-- Select an user role --</option>
+                            </select>
+                        </div>
+
+                        <h5>Access Permissions</h5>
+                        <p class="text-muted small mb-3">
+                            Select <strong>Allow</strong> to permit the user access to perform actions on the respective record's forms, select <strong>Deny</strong> to prohibit access.
+                        </p>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="crud_client">Allow access to Client forms&nbsp;<i class="bi-asterisk required"></i></label>
+                                <select id="crud_client" class="form-select form-select-sm" required>
+                                    <option value="1">Allow</option>
+                                    <option value="0">Deny</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="crud_est">Allow access to Establishment forms&nbsp;<i class="bi-asterisk required"></i></label>
+                                <select id="crud_est" class="form-select form-select-sm" required>
+                                    <option value="1">Allow</option>
+                                    <option value="0">Deny</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <label for="crud_sub_est">Allow access to Sub-Establishment forms&nbsp;<i class="bi-asterisk required"></i></label>
+                                <select id="crud_sub_est" class="form-select form-select-sm" required>
+                                    <option value="1">Allow</option>
+                                    <option value="0">Deny</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <label for="crud_permit">Allow access to Permit forms&nbsp;<i class="bi-asterisk required"></i></label>
+                                <select id="crud_permit" class="form-select form-select-sm" required>
+                                    <option value="1">Allow</option>
+                                    <option value="0">Deny</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mt-3">
+                                <label for="crud_user">Allow access to User Account forms&nbsp;<i class="bi-asterisk required"></i></label>
+                                <select id="crud_user" class="form-select form-select-sm" required>
+                                    <option value="1">Allow</option>
+                                    <option value="0">Deny</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-block btn-sm btn-primary">Save Changes&nbsp;<i class="bi-save"></i></button>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="users.html" class="btn btn-block btn-sm btn-outline-secondary">Cancel&nbsp;<i class="bi-x-circle"></i></a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/data-loader.js"></script>
+    <script src="assets/js/auth.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            await includeHTML("nav-placeholder", "partials/nav.html");
+            await includeHTML("footer-placeholder", "partials/footer.html");
+
+            const session = checkAuth();
+            if (!session) return;
+
+            const data = await loadAppData();
+            if (!data) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = parseInt(urlParams.get('id'));
+
+            const user = data.users.find(u => u.userID === userId);
+            if (!user) {
+                window.location.href = 'users.html';
+                return;
+            }
+
+            // Populate Roles
+            const roleSelect = document.getElementById('role');
+            data.roles.forEach(r => {
+                const selected = (r.ID === user.roleID) ? 'selected' : '';
+                roleSelect.innerHTML += `<option value="${r.ID}" ${selected}>${r.role}</option>`;
+            });
+
+            // Populate User Summary
+            document.getElementById('userSummary').innerHTML = `
+                <strong>Full Name: </strong>${user.firstname} ${user.lastname}<br>
+                <strong>Username: </strong>${user.username}<br>
+                ${user.email ? `<strong>Email: </strong>${user.email}` : ''}
+            `;
+
+            // Populate Permissions
+            document.getElementById('userId').value = user.userID;
+            document.getElementById('crud_client').value = user.crud_client;
+            document.getElementById('crud_est').value = user.crud_est;
+            document.getElementById('crud_sub_est').value = user.crud_sub_est;
+            document.getElementById('crud_permit').value = user.crud_permit;
+            document.getElementById('crud_user').value = user.crud_user;
+        });
+
+        function handleUpdateUser(event) {
+            event.preventDefault();
+            const data = window.APP_DATA;
+            const userId = parseInt(document.getElementById('userId').value);
+
+            const index = data.users.findIndex(u => u.userID === userId);
+            if (index === -1) return;
+
+            data.users[index].roleID = parseInt(document.getElementById('role').value);
+            data.users[index].crud_client = parseInt(document.getElementById('crud_client').value);
+            data.users[index].crud_est = parseInt(document.getElementById('crud_est').value);
+            data.users[index].crud_sub_est = parseInt(document.getElementById('crud_sub_est').value);
+            data.users[index].crud_permit = parseInt(document.getElementById('crud_permit').value);
+            data.users[index].crud_user = parseInt(document.getElementById('crud_user').value);
+
+            saveAppData();
+            window.location.href = 'users.html';
+        }
+    </script>
+</body>
+</html>
