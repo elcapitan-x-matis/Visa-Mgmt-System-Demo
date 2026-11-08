@@ -10,7 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.0.0/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/custom.css">
-<link rel="icon" href="assets/icon/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="assets/icon/favicon.ico" type="image/x-icon">
 </head>
 <body>
 
@@ -69,21 +69,30 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
+            // 1. Inject Layout
             await includeHTML("nav-placeholder", "partials/nav.html");
             await includeHTML("footer-placeholder", "partials/footer.html");
 
+            // 2. Auth Check
             const session = checkAuth();
             if (!session) return;
 
+            // 3. Load Data
             const data = await loadAppData();
-            if (!data) return;
+            if (!data) {
+                alert("Failed to load database. Check console.");
+                return;
+            }
 
             const tbody = document.getElementById('estTableBody');
             let html = '';
 
+            // 4. SAFE FALLBACK: Ensure the array exists before filtering
+            const subEstablishments = data.sub_establishments || [];
+
             data.establishments.forEach(est => {
-                // Find sub-establishments
-                const subests = data.sub_establishments.filter(s => s.establishmentID === est.ID);
+                // Find sub-establishments safely
+                const subests = subEstablishments.filter(s => s.establishmentID === est.ID);
                 let subestHtml = '<ul class="list-unstyled mb-0">';
                 
                 if (subests.length > 0) {
@@ -110,15 +119,19 @@
 
             tbody.innerHTML = html;
 
-            // Initialize DataTable
-            $('#estTable').DataTable({
-                "order": [[0, "asc"]],
-                "pageLength": 10,
-                "language": {
-                    "search": "Filter records:",
-                    "lengthMenu": "Show _MENU_ entries"
-                }
-            });
+            // 5. Initialize DataTable safely
+            if ($.fn.DataTable) {
+                $('#estTable').DataTable({
+                    "order": [[0, "asc"]],
+                    "pageLength": 10,
+                    "language": {
+                        "search": "Filter records:",
+                        "lengthMenu": "Show _MENU_ entries"
+                    }
+                });
+            } else {
+                console.error("DataTables library not loaded properly.");
+            }
         });
     </script>
 </body>
