@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Establishment | Work VISA Management System</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+<body>
+
+    <div id="nav-placeholder"></div>
+
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">Records</li>
+                    <li class="breadcrumb-item"><a href="establishments.html">Establishments</a></li>
+                    <li class="breadcrumb-item active">Update Record</li>
+                </ol>
+                <h3>Update Establishment Record</h3>
+                <hr>
+
+                <div class="col-lg-8 col-md-10 col-sm-12">
+                    <form id="estForm" onsubmit="handleUpdateEst(event)">
+                        <input type="hidden" id="estId" value="">
+                        
+                        <div class="form-group text-right mb-3">
+                            <i class="bi-asterisk required"></i>&nbsp;Required fields
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="name">Name&nbsp;<i class="bi-asterisk required"></i></label>
+                            <input type="text" class="form-control form-control-sm" id="name" required>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="address">Address&nbsp;<i class="bi-asterisk required"></i></label>
+                                <input type="text" class="form-control form-control-sm" id="address" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="placeOfOperation">Place of Operations&nbsp;<i class="bi-asterisk required"></i></label>
+                                <input type="text" class="form-control form-control-sm" id="placeOfOperation" required>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-block btn-sm btn-primary">Save Changes&nbsp;<i class="bi-save"></i></button>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="#" id="cancelBtn" class="btn btn-block btn-sm btn-outline-secondary">Cancel&nbsp;<i class="bi-x-circle"></i></a>
+                            </div>
+                        </div>
+                    </form>
+                    <p class="alertMessage" id="formMsg"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/data-loader.js"></script>
+    <script src="assets/js/auth.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            await includeHTML("nav-placeholder", "partials/nav.html");
+            await includeHTML("footer-placeholder", "partials/footer.html");
+
+            const session = checkAuth();
+            if (!session) return;
+
+            const data = await loadAppData();
+            if (!data) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const estId = parseInt(urlParams.get('id'));
+
+            const est = data.establishments.find(e => e.ID === estId);
+            if (!est) {
+                window.location.href = '404.html';
+                return;
+            }
+
+            // Populate Form
+            document.getElementById('estId').value = est.ID;
+            document.getElementById('name').value = est.name;
+            document.getElementById('address').value = est.address;
+            document.getElementById('placeOfOperation').value = est.placeOfOperation;
+            document.getElementById('cancelBtn').href = `establishment-view.html?id=${est.ID}`;
+        });
+
+        function handleUpdateEst(event) {
+            event.preventDefault();
+            const data = window.APP_DATA;
+            const estId = parseInt(document.getElementById('estId').value);
+
+            const index = data.establishments.findIndex(e => e.ID === estId);
+            if (index === -1) return;
+
+            data.establishments[index] = {
+                ...data.establishments[index],
+                name: document.getElementById('name').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                placeOfOperation: document.getElementById('placeOfOperation').value.trim()
+            };
+
+            saveAppData();
+            window.location.href = `establishment-view.html?id=${estId}`;
+        }
+    </script>
+</body>
+</html>

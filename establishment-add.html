@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Establishment | Work VISA Management System</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+<body>
+
+    <div id="nav-placeholder"></div>
+
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">Records</li>
+                    <li class="breadcrumb-item"><a href="establishments.html">Establishments</a></li>
+                    <li class="breadcrumb-item active">Add New Record</li>
+                </ol>
+                <h3>New Establishment Record</h3>
+                <hr>
+
+                <div class="col-lg-8 col-md-10 col-sm-12">
+                    <form id="estForm" onsubmit="handleAddEst(event)">
+                        <div class="form-group text-right mb-3">
+                            <i class="bi-asterisk required"></i>&nbsp;Required fields
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="name">Name&nbsp;<i class="bi-asterisk required"></i></label>
+                            <input type="text" class="form-control form-control-sm" id="name" required>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="address">Address&nbsp;<i class="bi-asterisk required"></i></label>
+                                <input type="text" class="form-control form-control-sm" id="address" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="placeOfOperation">Place of Operations&nbsp;<i class="bi-asterisk required"></i></label>
+                                <input type="text" class="form-control form-control-sm" id="placeOfOperation" required>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-block btn-sm btn-primary">Add Record&nbsp;<i class="bi-plus-circle"></i></button>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="establishments.html" class="btn btn-block btn-sm btn-outline-secondary">Cancel&nbsp;<i class="bi-x-circle"></i></a>
+                            </div>
+                        </div>
+                    </form>
+                    <p class="alertMessage" id="formMsg"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/data-loader.js"></script>
+    <script src="assets/js/auth.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            await includeHTML("nav-placeholder", "partials/nav.html");
+            await includeHTML("footer-placeholder", "partials/footer.html");
+            checkAuth();
+        });
+
+        function handleAddEst(event) {
+            event.preventDefault();
+            const data = window.APP_DATA;
+
+            // Get new ID
+            const newId = Math.max(...data.establishments.map(e => e.ID), 0) + 1;
+
+            const newEst = {
+                ID: newId,
+                name: document.getElementById('name').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                placeOfOperation: document.getElementById('placeOfOperation').value.trim()
+            };
+
+            data.establishments.push(newEst);
+            saveAppData();
+
+            window.location.href = 'establishments.html';
+        }
+    </script>
+</body>
+</html>

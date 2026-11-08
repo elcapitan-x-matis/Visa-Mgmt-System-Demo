@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Establishment Profile | Work VISA Management System</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/custom.css">
+</head>
+<body>
+
+    <div id="nav-placeholder"></div>
+
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">Records</li>
+                    <li class="breadcrumb-item"><a href="establishments.html">Establishments</a></li>
+                    <li class="breadcrumb-item active" id="breadcrumbId">...</li>
+                </ol>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 id="estName">Loading...</h2>
+                    <a href="#" id="editEstBtn" class="btn btn-sm btn-outline-primary">
+                        Edit Establishment&nbsp;<i class="bi-pencil-square"></i>
+                    </a>
+                </div>
+                <hr>
+
+                <div class="row">
+                    <!-- Left Column: Est Info & Sub-Companies & Clients -->
+                    <div class="col-md-8" id="estDetails">
+                        <!-- Injected via JS -->
+                    </div>
+
+                    <!-- Right Column: Notes -->
+                    <div class="col-md-4" id="estNotesSection">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/data-loader.js"></script>
+    <script src="assets/js/auth.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            await includeHTML("nav-placeholder", "partials/nav.html");
+            await includeHTML("footer-placeholder", "partials/footer.html");
+
+            const session = checkAuth();
+            if (!session) return;
+
+            const data = await loadAppData();
+            if (!data) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const estId = parseInt(urlParams.get('id'));
+
+            if (!estId) {
+                window.location.href = '404.html';
+                return;
+            }
+
+            const est = data.establishments.find(e => e.ID === estId);
+            if (!est) {
+                window.location.href = '404.html';
+                return;
+            }
+
+            // Set Headers
+            document.getElementById('breadcrumbId').textContent = est.name;
+            document.getElementById('estName').textContent = est.name;
+            document.getElementById('editEstBtn').href = `establishment-edit.html?id=${est.ID}`;
+
+            // Build Main Details HTML
+            let detailsHtml = `
+            <div class="table-responsive mb-4">
+                <table class="table table-sm table-borderless">
+                    <thead>
+                        <tr><th colspan="2"><i class="bi-info-circle"></i>&nbsp;Establishment Details</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><th>Name</th><td>${est.name}</td></tr>
+                        <tr><th>Address</th><td>${est.address}</td></tr>
+                        <tr><th>Place of Operation</th><td>${est.placeOfOperation}</td></tr>
+                    </tbody>
+                </table>
+            </div>`;
+
+            // Sub-Companies Section
+            const subests = data.sub_establishments.filter(s => s.establishmentID === est.ID);
+            if (subests.length > 0) {
+                detailsHtml += `
+                <div class="table-responsive mb-4">
+                    <table class="table table-sm table-borderless">
+                        <thead>
+                            <tr><th colspan="2"><i class="bi-list-task"></i>&nbsp;Sub-Companies</th></tr>
+                        </thead>
+                        <tbody>`;
+                
+                subests.forEach(sub => {
+                    detailsHtml += `
+                    <tr class="bg-light">
+                        <th><a href="subestablishment-view.html?id=${sub.ID}">${sub.name}</a></th>
+                        <th class="text-right"><a href="subestablishment-edit.html?id=${sub.ID}"><i class="bi-pencil-square"></i>&nbsp;Edit</a></th>
+                    </tr>
+                    <tr><th>Address</th><td>${sub.address}</td></tr>
+                    <tr><th>Place of Operation</th><td>${sub.placeOfOperation}</td></tr>`;
+                });
+                
+                detailsHtml += `</tbody></table></div>`;
+            }
+
+            // Client Employees Section
+            const clients = data.clients.filter(c => c.establishmentID === est.ID);
+            if (clients.length > 0) {
+                detailsHtml += `
+                <div class="table-responsive">
+                    <table class="table table-sm table-borderless">
+                        <thead>
+                            <tr><th colspan="2"><i class="bi-people"></i>&nbsp;Client Employees</th></tr>
+                        </thead>
+                        <tbody>`;
+                
+                clients.forEach(client => {
+                    const permit = data.permits.find(p => p.clientID === client.clientID);
+                    const type = permit ? data.permit_types.find(t => t.typeCode === permit.permitType) : null;
+                    
+                    detailsHtml += `
+                    <tr class="bg-light">
+                        <th>
+                            <a href="client-view.html?id=${client.clientID}">
+                                <i class="bi-person"></i>&nbsp;${client.lastname}, ${client.firstname} ${client.othername || ''}
+                            </a>
+                        </th>
+                        <th class="text-right">
+                            <a href="client-edit.html?id=${client.clientID}"><i class="bi-pencil-square"></i>&nbsp;Edit</a>
+                        </th>
+                    </tr>
+                    <tr><th>Occupation</th><td>${client.occupation || 'N/A'}</td></tr>
+                    <tr><th>Country of Origin</th><td>${client.country}</td></tr>`;
+                    
+                    if (permit && type) {
+                        detailsHtml += `
+                        <tr><th>Permit No</th><td>${permit.permitNo}</td></tr>
+                        <tr><th>Type</th><td>${type.name}</td></tr>
+                        <tr><th>Status</th><td>${getStatusBadge(permit.status)}</td></tr>
+                        <tr><th>Expiry Date</th><td>${dateToText(permit.dateExpiry)}</td></tr>`;
+                    } else {
+                        detailsHtml += `
+                        <tr><th colspan="2"><span class="badge bg-warning pill-rounded text-dark">No Work Permit Assigned</span></th></tr>`;
+                    }
+                });
+                
+                detailsHtml += `</tbody></table></div>`;
+            }
+
+            document.getElementById('estDetails').innerHTML = detailsHtml;
+
+            // Build Notes Section
+            const notes = data.est_notes.filter(n => n.establishmentID === est.ID);
+            let notesHtml = `
+            <button type="button" class="btn btn-sm btn-primary float-end" data-bs-toggle="modal" data-bs-target="#newNoteModal">
+                New&nbsp;<i class="bi-pencil"></i>
+            </button>
+            <p class="mb-4"><strong><i class="bi-files"></i>&nbsp;Notes</strong></p>
+            <ul class="list-unstyled">`;
+
+            if (notes.length === 0) {
+                notesHtml += `<p class="text-muted small">No notes available.</p>`;
+            } else {
+                notes.forEach(note => {
+                    notesHtml += `
+                    <li class="mb-3 pb-3 border-bottom">
+                        <p class="mb-2">${note.notes}</p>
+                        <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" onclick="deleteEstNote(${note.ID})">Remove&nbsp;<i class="bi-trash"></i></button>
+                    </li>`;
+                });
+            }
+            notesHtml += `</ul>`;
+            document.getElementById('estNotesSection').innerHTML = notesHtml;
+
+            // Add Note Modal
+            const modalHtml = `
+            <div class="modal fade" id="newNoteModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add New Note</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="addEstNoteForm" onsubmit="addEstNote(event, ${est.ID})">
+                            <div class="modal-body">
+                                <textarea class="form-control form-control-sm" rows="5" id="noteText" placeholder="Enter note..." required></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-sm btn-primary">Save Note&nbsp;<i class="bi-save"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        });
+
+        // Note CRUD Functions
+        function addEstNote(event, estId) {
+            event.preventDefault();
+            const text = document.getElementById('noteText').value;
+            if (!text.trim()) return;
+
+            const data = window.APP_DATA;
+            const newId = Math.max(...data.est_notes.map(n => n.ID), 0) + 1;
+            
+            data.est_notes.push({
+                ID: newId,
+                notes: text,
+                establishmentID: estId,
+                createdOn: new Date().toISOString()
+            });
+
+            saveAppData();
+            window.location.reload();
+        }
+
+        function deleteEstNote(noteId) {
+            if (!confirm('Are you sure you want to remove this note?')) return;
+            
+            const data = window.APP_DATA;
+            data.est_notes = data.est_notes.filter(n => n.ID !== noteId);
+            
+            saveAppData();
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
