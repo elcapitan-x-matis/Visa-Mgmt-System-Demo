@@ -1,0 +1,115 @@
+<!-- Main Navigation -->
+<nav class="navbar sticky-top navbar-expand-md navbar-light bg-light shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="dashboard.html">
+      <img src="assets/images/seal.png" class="img-fluid logo" alt="PNG Seal">
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavMenu" aria-controls="mainNavMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="mainNavMenu">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="dashboard.html">
+            <i class="bi-speedometer"></i>&nbsp; Dashboard
+          </a>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownClients" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi-people"></i>&nbsp;Clients
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownClients">
+            <li><a class="dropdown-item" href="clients.html"><i class="bi-people"></i>&nbsp;Client Records</a></li>
+            <li><a class="dropdown-item" href="client-add.html"><i class="bi-person-plus"></i>&nbsp;Add New Client</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownEst" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi-building"></i>&nbsp;Establishments
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownEst">
+            <li><a class="dropdown-item" href="establishments.html"><i class="bi-building"></i>&nbsp;Establishment Records</a></li>
+            <li><a class="dropdown-item" href="establishment-add.html"><i class="bi-plus-circle"></i>&nbsp;Add New Establishment</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPermits" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi-file-earmark-text"></i>&nbsp;Permits
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownPermits">
+            <li><a class="dropdown-item" href="permits.html"><i class="bi-files"></i>&nbsp;Permit Records</a></li>
+            <li><a class="dropdown-item" href="permit-select-client.html"><i class="bi-plus-circle"></i>&nbsp;Add New Permit</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi-person-circle"></i>&nbsp;<span id="navUserName">Loading...</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownUser">
+            <li><a class="dropdown-item" href="profile-update.html"><i class="bi-pencil-square"></i>&nbsp;Update Profile</a></li>
+            <li><a class="dropdown-item" href="password-update.html"><i class="bi-key"></i>&nbsp;Change Password</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="#" onclick="logout()"><i class="bi-box-arrow-right"></i>&nbsp;Logout</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Admin Sub-Navigation (Hidden by default) -->
+<nav id="adminNavbar" class="navbar navbar-expand-md navbar-dark bg-dark" style="background-color: #0060C6 !important; display: none;">
+  <div class="container-fluid">
+    <span class="navbar-brand text-white">
+      <i class="bi-shield-lock"></i>&nbsp;Administrator Panel
+    </span>
+    <div class="collapse navbar-collapse" id="adminNavMenu">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdownUsers" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi-people"></i>&nbsp;Users
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownUsers">
+            <li><a class="dropdown-item" href="users.html"><i class="bi-people"></i>&nbsp;Accounts</a></li>
+            <li><a class="dropdown-item" href="user-add.html"><i class="bi-person-plus"></i>&nbsp;Add New User</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<script>
+  // Inject dynamic user info and admin panel visibility
+  document.addEventListener("DOMContentLoaded", () => {
+    const session = JSON.parse(localStorage.getItem('workvisa_session'));
+    
+    if (session) {
+      // Set User Name
+      const nameEl = document.getElementById('navUserName');
+      if (nameEl) nameEl.textContent = session.name;
+      
+      // Show admin panel if user is an Administrator
+      if (session.roleID == 1) {
+        const adminNav = document.getElementById('adminNavbar');
+        if (adminNav) adminNav.style.display = 'block';
+      }
+
+      // Highlight active link
+      const currentPath = window.location.pathname.split('/').pop();
+      const navLinks = document.querySelectorAll('.nav-link');
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+          link.classList.add('active');
+        }
+      });
+    }
+  });
+</script>

@@ -51,3 +51,28 @@ function showAlert(title, text, icon) {
         alert(`${title}: ${text}`);
     }
 }
+
+// Function to inject HTML partials (replaces PHP require)
+async function includeHTML(elementId, filePath) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    try {
+        const response = await fetch(filePath);
+        if (!response.ok) throw new Error(`Failed to load ${filePath}`);
+        const html = await response.text();
+        element.innerHTML = html;
+        
+        // Re-execute scripts inside the injected HTML
+        const scripts = element.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
+    } catch (error) {
+        console.error(error);
+        element.innerHTML = '<div class="alert alert-danger">Error loading layout component.</div>';
+    }
+}
